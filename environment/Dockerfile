@@ -6,11 +6,12 @@ RUN apt-get update && \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
     echo "path-exclude /usr/share/doc/*" >/etc/dpkg/dpkg.cfg.d/01_nodoc && \
     echo "path-include /usr/share/doc/*/copyright" >>/etc/dpkg/dpkg.cfg.d/01_nodoc && \
-    apt-get upgrade -y && \
+    apt-get upgrade -y \
+    && \
     apt-get --assume-yes --no-install-recommends install wget curl rsync ssh gnupg2 time sudo expect parallel zip unzip git \
     build-essential gfortran-10 gcc-10 g++-10 gcc-10-multilib g++-10-multilib libc6-dev-i386 mingw-w64 \
     clang-10 libllvm10 lldb-10 llvm-10 llvm-10-dev llvm-10-runtime clang-format-10 \
-    python3-clang-10 libomp-10-dev && \    
+    python3-clang-10 libomp-10-dev \    
     python3-dev python3-pip python3-setuptools python3-wheel && \
     gdb valgrind scons libtool automake cmake flex bison binutils-dev libgoogle-perftools-dev lcov tree ninja-build \
     libreadline6-dev libyaml-dev libicu-dev zlib1g-dev libbz2-dev liblzma-dev lzma lzma-dev zstd libzstd-dev libncurses5-dev libsqlite3-dev libzmq3-dev \
@@ -23,6 +24,7 @@ RUN apt-get update && \
     texlive-latex-recommended texlive-science texlive-fonts-recommended \
     texlive-fonts-extra texlive-latex-extra texlive-lang-european lmodern texlive-bibtex-extra \
     texlive-xetex biber dot2tex dvipng latexmk \
+    && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
     
 RUN python3 -m pip install --upgrade pip setuptools wheel && \
