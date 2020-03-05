@@ -9,7 +9,7 @@ RUN apt-get update && \
     apt-get upgrade -y \
     && \
     apt-get --assume-yes --no-install-recommends install wget curl rsync ssh gnupg2 time sudo expect parallel zip unzip git \
-    build-essential gfortran-10 gcc-10 g++-10 gcc-10-multilib g++-10-multilib libc6-dev-i386 mingw-w64 \
+    libc-dev dpkg-dev make gfortran-10 gcc-10 g++-10 gcc-10-multilib g++-10-multilib libc6-dev-i386 mingw-w64 \
     clang-10 libllvm10 lldb-10 llvm-10 llvm-10-dev llvm-10-runtime clang-format-10 clang-tidy-10 \
     python3-clang-10 libomp-10-dev \    
     python3-dev python3-pip python3-setuptools python3-wheel \
