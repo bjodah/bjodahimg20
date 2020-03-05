@@ -8,21 +8,21 @@ RUN apt-get update && \
     echo "path-include /usr/share/doc/*/copyright" >>/etc/dpkg/dpkg.cfg.d/01_nodoc && \
     apt-get upgrade -y && \
     apt-get --assume-yes --no-install-recommends install wget curl rsync ssh gnupg2 time sudo expect parallel zip unzip git \
-    build-essential gfortran-10 gcc-10 g++-10 gcc-10-multilib g++-10-multilib libc6-dev-i386 mingw-w64 wine-stable \
+    build-essential gfortran-10 gcc-10 g++-10 gcc-10-multilib g++-10-multilib libc6-dev-i386 mingw-w64 \
+    clang-10 libllvm10 lldb-10 llvm-10 llvm-10-dev llvm-10-runtime clang-format-10 \
+    python-clang-10 libomp-10-dev && \    
+    python3-dev python3-pip python3-setuptools python3-wheel && \
     gdb valgrind scons libtool automake cmake flex bison binutils-dev libgoogle-perftools-dev lcov tree ninja-build \
     libreadline6-dev libyaml-dev libicu-dev zlib1g-dev libbz2-dev liblzma-dev lzma lzma-dev zstd libzstd-dev libncurses5-dev libsqlite3-dev libzmq3-dev \
     libssl-dev libgdbm-dev tk-dev libxslt1-dev libxml2-dev libgit2-dev emacs-nox \
     liblapack-dev libopenmpi-dev libgmp-dev libmpfr-dev libgsl-dev coinor-libipopt-dev \
-    petsc-dev trilinos-dev libsuitesparse-dev doxygen pandoc phantomjs \
+    petsc-dev trilinos-dev libsuitesparse-dev doxygen pandoc phantomjs wine-stable \
     libjpeg-dev libpng-dev libfreetype6-dev libfontconfig1 fonts-dejavu fonts-humor-sans imagemagick inkscape ffmpeg \
-    xorg-dev xutils-dev libxrender1 freeglut3-dev libglfw3-dev libgl1-mesa-dev \
+    xorg-dev xutils-dev libxrender1 freeglut3-dev libglfw3-dev libgl1-mesa-dev graphviz libgraphviz-dev \
     libsdl2-dev libsdl2-ttf-dev libsdl2-net-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-gfx-dev \
-    texlive-generic-recommended texlive-latex-recommended texlive-science texlive-fonts-recommended \
+    texlive-latex-recommended texlive-science texlive-fonts-recommended \
     texlive-fonts-extra texlive-latex-extra texlive-lang-european lmodern texlive-bibtex-extra \
-    texlive-xetex biber graphviz libgraphviz-dev dot2tex dvipng latexmk \
-    python3-dev python3-pip python3-setuptools python3-wheel && \
-    clang-10 libllvm10 lldb-10 llvm-10 llvm-10-dev llvm-10-runtime clang-format-10 \
-    python-clang-10 libomp-10-dev && \    
+    texlive-xetex biber dot2tex dvipng latexmk \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
     
 RUN python3 -m pip install --upgrade pip setuptools wheel && \
