@@ -1,17 +1,23 @@
 FROM ubuntu:focal
 MAINTAINER Björn Dahlgren <bjodah@DELETEMEgmail.com>
 ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
+
+# localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
+
 RUN apt-get update && \
     apt-get --quiet --assume-yes --no-install-recommends install locales && \
-    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
+    echo "LC_ALL=en_US.UTF-8" >> /etc/environment && \
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+    echo "LANG=en_US.UTF-8" > /etc/locale.conf && \
+    locale-gen en_US.UTF-8 && \
     echo "path-exclude /usr/share/doc/*" >/etc/dpkg/dpkg.cfg.d/01_nodoc && \
     echo "path-include /usr/share/doc/*/copyright" >>/etc/dpkg/dpkg.cfg.d/01_nodoc && \
-    apt-get upgrade -y \
+    apt-get dist-upgrade -y \
     && \
     apt-get --assume-yes --no-install-recommends install wget curl rsync ssh gnupg2 time sudo expect parallel zip unzip git \
     libc-dev dpkg-dev make gfortran-10 gcc-10 g++-10 gcc-10-multilib g++-10-multilib libc6-dev-i386 mingw-w64 \
     clang-10 libllvm10 lldb-10 llvm-10 llvm-10-dev llvm-10-runtime clang-format-10 clang-tidy-10 \
-    python3-clang-10 libomp-10-dev \    
+    python3-clang-10 libomp-10-dev wkhtmltopdf python2-dev \
     python3-dev python3-pip python3-setuptools python3-wheel \
     gdb valgrind scons libtool automake cmake flex bison binutils-dev libgoogle-perftools-dev lcov tree ninja-build cppcheck \
     libreadline6-dev libyaml-dev libicu-dev zlib1g-dev libbz2-dev liblzma-dev lzma lzma-dev zstd libzstd-dev libncurses5-dev libsqlite3-dev libzmq3-dev \
@@ -27,14 +33,15 @@ RUN apt-get update && \
     && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
     
-RUN python3 -m pip install --upgrade pip setuptools wheel && \
+RUN python3 -m pip install --upgrade-strategy=eager --upgrade pip setuptools wheel && \
     python3 -m pip install setuptools wheel virtualenv future appdirs pybind11 cython pycparser \
             flake8 pytest pytest-pep8 pytest-cov pytest-flakes pytest-flake8 pytest-xdist pytest-docstyle \
             numpy numpydoc scipy statsmodels "sympy>=1.4" pandas matplotlib mpld3 jupyter ipython ipykernel \
             scikit-optimize joblib toolz param quantities pylatex bokeh mogli xarray periodictable ase numericalunits \
             tqdm pyparsing ipywidgets pulp holoviews[recommended] cclib scikit-image git-archive-all wurlitzer \
-            sphinx sphinx_rtd_theme argh rstcheck check-manifest setuptools_scm mako bottle sqlalchemy CherryPy Nikola[extras] nbsphinx \
-            networkx pygraphviz plotly nbconvert https://github.com/airspeed-velocity/asv/archive/master.tar.gz && \
+            sphinx sphinx_rtd_theme argh rstcheck check-manifest setuptools_scm mako bottle CherryPy Nikola[extras] nbsphinx \
+            networkx pygraphviz plotly nbconvert asv && \
+    python3 -m pip install --no-use-pep517 sqlalchemy && \
     python3 -m ipykernel install && \
     python3 -m jupyter nbextension enable --py widgetsnbextension && \
     echo "backend: Agg" > /etc/matplotlibrc && \
@@ -43,12 +50,13 @@ RUN python3 -m pip install --upgrade pip setuptools wheel && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
 
 COPY scripts/*.* /opt/
-RUN CC=gcc-10 /opt/get_sundials.sh 5.1.0 /opt/sundials-5.1.0-klu-lapack -DLAPACK_ENABLE=ON -DKLU_ENABLE=ON -DKLU_INCLUDE_DIR=/usr/include/suitesparse -DKLU_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu -DSUNDIALS_INDEX_SIZE=32 && \
-    CC=gcc-10 /opt/get_sundials.sh 5.1.0 /opt/sundials-5.1.0-noklu-nolapack-extended-int64 -DLAPACK_ENABLE=OFF -DKLU_ENABLE=OFF -DSUNDIALS_PRECISION:STRING="extended" -DSUNDIALS_INDEX_SIZE=64 && \
-    /opt/get_sundials.sh 5.1.0 /opt/sundials-5.1.0-noklu-nolapack-single-int32 -DLAPACK_ENABLE=OFF -DKLU_ENABLE=OFF -DSUNDIALS_PRECISION:STRING="single" -DSUNDIALS_INDEX_SIZE=32 && \
+RUN CC=gcc-10 /opt/get_sundials.sh 5.2.0 /opt/sundials-5.2.0-klu-lapack -DLAPACK_ENABLE=ON -DKLU_ENABLE=ON -DKLU_INCLUDE_DIR=/usr/include/suitesparse -DKLU_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu -DSUNDIALS_INDEX_SIZE=32 && \
+    CC=gcc-10 /opt/get_sundials.sh 5.2.0 /opt/sundials-5.2.0-noklu-nolapack-extended-int64 -DLAPACK_ENABLE=OFF -DKLU_ENABLE=OFF -DSUNDIALS_PRECISION:STRING="extended" -DSUNDIALS_INDEX_SIZE=64 && \
+    /opt/get_sundials.sh 5.2.0 /opt/sundials-5.2.0-noklu-nolapack-single-int32 -DLAPACK_ENABLE=OFF -DKLU_ENABLE=OFF -DSUNDIALS_PRECISION:STRING="single" -DSUNDIALS_INDEX_SIZE=32 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
+
 RUN cd /tmp && curl -Ls https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2 | tar xj  && \
-    cp /opt/boost172-rational-gh41.patch . && patch -p1 <boost172-rational-gh41.patch && cd boost_1_72_0 && echo "using gcc : 8.3 : /usr/bin/g++-10 ; " >> tools/build/src/user-config.jam && ./bootstrap.sh --with-python=python3 --prefix=/opt/boost_1_72_p && ./b2 install && \
+    cp /opt/boost172-rational-gh41.patch . && patch -p1 <boost172-rational-gh41.patch && cd boost_1_72_0 && echo "using gcc : 10.0 : /usr/bin/g++-10 ; " >> tools/build/src/user-config.jam && CC=gcc-10 CXX=g++-10 ./bootstrap.sh --with-toolset=gcc --with-python=python3 --prefix=/opt/boost_1_72_p || cat bootstrap.log && ./b2 install && \
     rm -rf /tmp/*
 
 
