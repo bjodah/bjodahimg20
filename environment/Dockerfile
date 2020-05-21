@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:focal-20200423
 MAINTAINER Björn Dahlgren <bjodah@DELETEMEgmail.com>
 ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
 
@@ -20,8 +20,8 @@ RUN apt-get update && \
     python3-clang-10 libomp-10-dev wkhtmltopdf python2-dev \
     python3-dev python3-pip python3-setuptools python3-wheel \
     gdb valgrind scons libtool automake cmake flex bison binutils-dev libgoogle-perftools-dev lcov tree ninja-build cppcheck \
-    libreadline6-dev libyaml-dev libicu-dev zlib1g-dev libbz2-dev liblzma-dev lzma lzma-dev zstd libzstd-dev libncurses5-dev libsqlite3-dev libzmq3-dev \
-    libssl-dev libgdbm-dev tk-dev libxslt1-dev libxml2-dev libgit2-dev emacs-nox \
+    libreadline6-dev libyaml-dev libicu-dev zlib1g-dev libbz2-dev liblzma-dev lzma lzma-dev zstd libzstd-dev libncurses5-dev \
+    libsqlite3-dev libzmq3-dev libssl-dev libgdbm-dev tk-dev libxslt1-dev libxml2-dev libgit2-dev emacs-nox elpa-org \
     liblapack-dev libopenmpi-dev libgmp-dev libmpfr-dev libgsl-dev coinor-libipopt-dev \
     petsc-dev trilinos-dev libsuitesparse-dev doxygen pandoc phantomjs wine-stable \
     libjpeg-dev libpng-dev libfreetype6-dev libfontconfig1 fonts-dejavu fonts-humor-sans imagemagick inkscape ffmpeg \
@@ -34,13 +34,13 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
     
 RUN python3 -m pip install --upgrade-strategy=eager --upgrade pip setuptools wheel && \
-    python3 -m pip install setuptools wheel virtualenv future appdirs pybind11 cython pycparser \
-            flake8 pytest pytest-pep8 pytest-cov pytest-flakes pytest-flake8 pytest-xdist pytest-docstyle \
+    python3 -m pip install setuptools wheel virtualenv future appdirs pybind11 cython pycparser pycparser-fake-libc \
+            flake8 pytest pytest-pep8 pytest-cov pytest-flakes pytest-flake8 pytest-xdist pytest-docstyle mypy black isort \
             numpy numpydoc scipy statsmodels "sympy>=1.4" pandas matplotlib mpld3 jupyter ipython ipykernel \
             scikit-optimize joblib toolz param quantities pylatex bokeh mogli xarray periodictable ase numericalunits \
             tqdm pyparsing ipywidgets pulp holoviews[recommended] cclib scikit-image git-archive-all wurlitzer \
             sphinx sphinx_rtd_theme argh rstcheck check-manifest setuptools_scm mako bottle CherryPy Nikola[extras] nbsphinx \
-            networkx pygraphviz plotly nbconvert asv && \
+            networkx pygraphviz plotly nbconvert asv trepan3k && \
     python3 -m pip install --no-use-pep517 sqlalchemy && \
     python3 -m ipykernel install && \
     python3 -m jupyter nbextension enable --py widgetsnbextension && \
@@ -50,13 +50,13 @@ RUN python3 -m pip install --upgrade-strategy=eager --upgrade pip setuptools whe
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
 
 COPY scripts/*.* /opt/
-RUN CC=gcc-10 /opt/get_sundials.sh 5.2.0 /opt/sundials-5.2.0-klu-lapack -DLAPACK_ENABLE=ON -DKLU_ENABLE=ON -DKLU_INCLUDE_DIR=/usr/include/suitesparse -DKLU_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu -DSUNDIALS_INDEX_SIZE=32 && \
-    CC=gcc-10 /opt/get_sundials.sh 5.2.0 /opt/sundials-5.2.0-noklu-nolapack-extended-int64 -DLAPACK_ENABLE=OFF -DKLU_ENABLE=OFF -DSUNDIALS_PRECISION:STRING="extended" -DSUNDIALS_INDEX_SIZE=64 && \
-    /opt/get_sundials.sh 5.2.0 /opt/sundials-5.2.0-noklu-nolapack-single-int32 -DLAPACK_ENABLE=OFF -DKLU_ENABLE=OFF -DSUNDIALS_PRECISION:STRING="single" -DSUNDIALS_INDEX_SIZE=32 && \
+RUN CC=gcc-10 /opt/get_sundials.sh 5.3.0 /opt/sundials-5.3.0-klu-lapack -DLAPACK_ENABLE=ON -DKLU_ENABLE=ON -DKLU_INCLUDE_DIR=/usr/include/suitesparse -DKLU_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu -DSUNDIALS_INDEX_SIZE=32 && \
+    CC=gcc-10 /opt/get_sundials.sh 5.3.0 /opt/sundials-5.3.0-noklu-nolapack-extended-int64 -DLAPACK_ENABLE=OFF -DKLU_ENABLE=OFF -DSUNDIALS_PRECISION:STRING="extended" -DSUNDIALS_INDEX_SIZE=64 && \
+    /opt/get_sundials.sh 5.3.0 /opt/sundials-5.3.0-noklu-nolapack-single-int32 -DLAPACK_ENABLE=OFF -DKLU_ENABLE=OFF -DSUNDIALS_PRECISION:STRING="single" -DSUNDIALS_INDEX_SIZE=32 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
 
-RUN cd /tmp && curl -Ls https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2 | tar xj  && \
-    cp /opt/boost172-rational-gh41.patch . && patch -p1 <boost172-rational-gh41.patch && cd boost_1_72_0 && echo "using gcc : 10.0 : /usr/bin/g++-10 ; " >> tools/build/src/user-config.jam && CC=gcc-10 CXX=g++-10 ./bootstrap.sh --with-toolset=gcc --with-python=python3 --prefix=/opt/boost_1_72_p || cat bootstrap.log && ./b2 install && \
+RUN cd /tmp && curl -Ls https://dl.bintray.com/boostorg/release/1.73.0/source/boost_1_73_0.tar.bz2 | tar xj  && \
+    cp /opt/boost173-rational-gh41.patch . && patch -p1 <boost173-rational-gh41.patch && cd boost_1_73_0 && echo "using gcc : 10.0 : /usr/bin/g++-10 ; " >> tools/build/src/user-config.jam && CC=gcc-10 CXX=g++-10 ./bootstrap.sh --with-toolset=gcc --with-python=python3 --prefix=/opt/boost_1_73_p || cat bootstrap.log && ./b2 install && \
     rm -rf /tmp/*
 
 
@@ -66,3 +66,5 @@ RUN cd /tmp && curl -Ls https://dl.bintray.com/boostorg/release/1.72.0/source/bo
     #     clang-11 libllvm11 lldb-11 llvm-11 llvm-11-dev llvm-11-runtime clang-format-11 \
     #     python-clang-11 libomp-11-dev && \
 
+
+# RUN emacs -e "(progn (package-initialize)(package-install 'realgud))"
