@@ -1,7 +1,7 @@
-diff --git a/boost_1_73_0/boost/rational.hpp b/boost_1_73_0/boost/rational.hpp
+diff --git a/boost_1_74_0/boost/rational.hpp b/boost_1_74_0/boost/rational.hpp
 index f33bc3b..afe9983 100644
---- a/boost_1_73_0/boost/rational.hpp
-+++ b/boost_1_73_0/boost/rational.hpp
+--- a/boost_1_74_0/boost/rational.hpp
++++ b/boost_1_74_0/boost/rational.hpp
 @@ -902,7 +902,7 @@ BOOST_CXX14_CONSTEXPR void rational<IntType>::normalize()
      num /= g;
      den /= g;
