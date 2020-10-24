@@ -39,7 +39,7 @@ RUN \
     echo "deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal-11 main" >>/etc/apt/sources.list && \
     apt-get update && \
     apt-get --assume-yes --no-install-recommends install \
-        clang-11 libllvm11 lldb-11 llvm-11 llvm-11-dev llvm-11-runtime clang-format-11 clang-tidy-11 libomp-11-dev && \
+        clang-11 libllvm11 libclang-11-dev lldb-11 llvm-11 llvm-11-dev llvm-11-runtime clang-format-11 clang-tidy-11 libomp-11-dev && \
     python3 -m pip install --upgrade-strategy=eager --upgrade pip setuptools wheel && \
     python3 -m pip install libclang && python3 -c "from clang.cindex import TypeKind" && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
