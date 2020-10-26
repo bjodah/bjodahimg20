@@ -132,6 +132,14 @@ RUN \
     java --version && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+ENV JAVA_HOME=/usr/lib/jvm/adoptopenjdk-11-openj9-amd64
+
+RUN \
+    apt-get update && apt-get -y install --no-recommends nodejs npm && \
+    node --version && npm --version && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+
 # RUN \
 #     mkdir -p /tmp/cpy310/build && cd /tmp/cpy310 && \
 #     curl -Ls https://www.github.com/python/cpython/archive/3.10.tar.gz | tar xz -C /tmp/cpy310 --strip-components=1 && \
