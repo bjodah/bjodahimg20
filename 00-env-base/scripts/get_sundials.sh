@@ -142,7 +142,7 @@ for URL in "${SUNDIALS_URLS[@]}"; do
 	    >&2 echo "Cmake configuration failed."
 	    exit 1
 	fi
-        quiet_unless_fail make VERBOSE=1 -j 1
+        quiet_unless_fail make VERBOSE=1 -j 2
         if [ $EXIT_CODE_QUIET -ne 0 ]; then
             >&2 echo "Building of sundials \"$VERSION\" failed."
             exit 1

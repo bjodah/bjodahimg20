@@ -1,19 +1,15 @@
-FROM bjodah/bjodahimg20dev:2.0.0
+FROM bjodah/bjodahimg20dev:2.1.0
 
 ENV PATH=/usr/local/cargo/bin:$PATH CARGO_HOME=/usr/local/cargo RUSTUP_HOME=/usr/local/rustup
 
-RUN \
-    apt-get update && apt-get -y install --no-install-recommends libtool-bin && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# RUN \
+#         cd /tmp && \
+#         curl -LOs http://hera.physchem.kth.se/~repo/10adbf0507a7d1c01b68c79c37ee19c484807cfd3ef1aeaf53f47cf52ea26eea/jdt-language-server-0.64.0-202010270209.tar.gz && \
+#         mkdir -p /opt/jdt && cd /opt/jdt && tar xzf /tmp/jdt-language-server-0.64.0-202010270209.tar.gz && \
+#         rm /tmp/jdt-language-server-0.64.0-202010270209.tar.gz
 
-RUN \
-        cd /tmp && \
-        curl -LOs http://hera.physchem.kth.se/~repo/10adbf0507a7d1c01b68c79c37ee19c484807cfd3ef1aeaf53f47cf52ea26eea/jdt-language-server-0.64.0-202010270209.tar.gz && \
-        mkdir -p /opt/jdt && cd /opt/jdt && tar xzf /tmp/jdt-language-server-0.64.0-202010270209.tar.gz && \
-        rm /tmp/jdt-language-server-0.64.0-202010270209.tar.gz
 # https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz && \
-
-ENV CLASSPATH=/opt/jdt/plugins/*
+# ENV CLASSPATH=/opt/jdt/plugins/*
 
 RUN \
     mkdir /opt/bjodah-dotfiles && \
@@ -22,10 +18,26 @@ RUN \
     ln -s /opt/bjodah-dotfiles/defaults/.emacs.d ~/.emacs.d && \
     emacs -nw --batch --eval "(progn \
 (load \"~/.emacs.d/init.el\") \
+(require 'lsp-javascript)\
+(let ((client (gethash 'ts-ls lsp-clients)))\
+  (lsp--install-server-internal client nil)\
+  (while (lsp--client-download-in-progress? client)\
+    (sit-for 1)))\
 (let ((client (gethash 'jdtls lsp-clients)))\
   (lsp--install-server-internal client nil)\
   (while (lsp--client-download-in-progress? client)\
-    (sit-for 1))))"
+    (sit-for 1)))\
+)"
+
+
+# (require 'lsp-mode)\
+# (require 'typescript-mode)\
+# (let ((client (gethash 'ts-ls lsp-clients)))\
+#   (lsp--install-server-internal client nil)\
+#   (while (lsp--client-download-in-progress? client)\
+#     (sit-for 1)))\
+
+
     #emacs -nw --batch --eval "(progn (load \"~/.emacs.d/init.el\") (lsp--install-server-internal (gethash 'jdtls lsp-clients) nil))"
 
 # RUN \

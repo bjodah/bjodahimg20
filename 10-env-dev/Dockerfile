@@ -1,4 +1,4 @@
-FROM bjodah/bjodahimg20:2.0
+FROM bjodah/bjodahimg20:2.1
 MAINTAINER Björn Dahlgren <bjodah@DELETEMEgmail.com>
 
 ENV RUSTUP_HOME=/usr/local/rustup \
@@ -23,13 +23,13 @@ RUN \
         make && make install && cd /tmp && rm -r emacs
 
 RUN \
-    curl -Ls https://github.com/emscripten-core/emsdk/archive/2.0.6.tar.gz | tar xz -C /opt && \
-    cd /opt/emsdk-2.0.6 && ./emsdk install 2.0.6 && \
-    ./emsdk activate 2.0.6 && ls -l /opt/emsdk-2.0.6/emsdk_env.sh
+    curl -Ls https://github.com/emscripten-core/emsdk/archive/2.0.8.tar.gz | tar xz -C /opt && \
+    cd /opt/emsdk-2.0.8 && ./emsdk install 2.0.8 && \
+    ./emsdk activate 2.0.8 && ls -l /opt/emsdk-2.0.8/emsdk_env.sh
 
 RUN \
     export CC=clang-11 CXX=clang++-11 && \
-    export LLVM_ORG_VER=11.0.0-rc6 && \
+    export LLVM_ORG_VER=11.0.0 && \
     export LLVM_MAJOR=$(echo $LLVM_ORG_VER | cut -f1 -d.) && \
     curl -Ls https://github.com/llvm/llvm-project/archive/llvmorg-${LLVM_ORG_VER}.tar.gz | tar xz -C /tmp && \
     mkdir /tmp/build_libcxx && \
@@ -55,18 +55,18 @@ RUN \
 COPY scripts/get_symengine.sh /opt/
 RUN \
     CC=clang-11 CXX=clang++-11 CXXFLAGS="-std=c++14" \
-        /opt/get_symengine.sh 9fc2716cab4a6d2d89a3f9d765a04ef1594c6bcf /opt/symengine-9fc2716-rel Release -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=ON && \
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-rel Release -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=ON && \
     CC=clang-11 CXX=clang++-11 CXXFLAGS="-std=c++14" \
-        /opt/get_symengine.sh 9fc2716cab4a6d2d89a3f9d765a04ef1594c6bcf /opt/symengine-9fc2716-tcm Release -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=ON -DWITH_TCMALLOC=ON && \
-    export CMAKE_PREFIX_PATH=/usr/lib/llvm-10 && \
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-tcm Release -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=ON -DWITH_TCMALLOC=ON && \
+    export CMAKE_PREFIX_PATH=/usr/lib/llvm-11 && \
     export CPLUS_INCLUDE_PATH=/opt/boost_1_74_p/include && cd /tmp && \
     CC=gcc-10   CXX=g++-10 CXXFLAGS="-std=c++14 -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -fsized-deallocation" \
-        /opt/get_symengine.sh 9fc2716cab4a6d2d89a3f9d765a04ef1594c6bcf /opt/symengine-9fc2716-dbg Debug   -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=OFF -DINTEGER_CLASS=boostmp
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-dbg Debug   -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=OFF -DINTEGER_CLASS=boostmp
 
 RUN CC=clang-11 CXX=clang++-11 \
     CXXFLAGS="-std=c++14 $CXXFLAGS -fsanitize=memory -fsanitize-memory-track-origins=2 -stdlib=libc++ -I/opt/libcxx11_msan/include -I/opt/libcxx11_msan/include/c++/v1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 -glldb -DHAVE_GCC_ABI_DEMANGLE=no" \
     LDFLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 $LDFLAGS -Wl,-rpath,/opt/libcxx11_msan/lib -L/opt/libcxx11_msan/lib -lc++abi" \
-        /opt/get_symengine.sh 9fc2716cab4a6d2d89a3f9d765a04ef1594c6bcf /opt/symengine-9fc2716-msan Debug -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_SYMENGINE_RCP=ON -DINTEGER_CLASS=boostmp \
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-msan Debug -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_SYMENGINE_RCP=ON -DINTEGER_CLASS=boostmp \
         -DBOOST_ROOT=/opt/boost_1_74_p
 
 RUN \
@@ -78,9 +78,7 @@ RUN \
     wkhtmltopdf --help >/dev/null
 
 
-RUN apt-get update && apt-get -y install --no-install-recommends libclang-11-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    cd /tmp && \
+RUN cd /tmp && \
     git clone --depth=1 --recursive https://github.com/MaskRay/ccls && cd ccls && \
         CC=clang-11 CXX=clang++-11 cmake -H. -BRelease \
         -DCMAKE_INSTALL_PREFIX=/usr/local \
@@ -121,7 +119,7 @@ RUN \
     /opt/cpython-3.9-dbg/bin/python3 -c "import sqlite3, uuid, lzma, bz2" && \
     /opt/cpython-3.9-dbg/bin/python3 -m pip install --upgrade --upgrade-strategy=eager pip && \
     /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver cython pytest && \
-    /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver numpy scipy matplotlib plotly tqdm && \
+    /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver numpy scipy matplotlib plotly tqdm ipywidgets notebook ipympl wheel appdirs && \
     cd /tmp; rm -rf /tmp/* /var/tmp/* ~/.cache/pip
 
 RUN \
@@ -133,11 +131,6 @@ RUN \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV JAVA_HOME=/usr/lib/jvm/adoptopenjdk-11-openj9-amd64
-
-RUN \
-    apt-get update && apt-get -y install --no-install-recommends nodejs npm && \
-    node --version && npm --version && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN \
     npm i -g typescript-language-server && \
