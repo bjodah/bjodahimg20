@@ -78,3 +78,7 @@ RUN CC=clang-11 CXX=clang++-11 \
     LDFLAGS="$LDFLAGS -Wl,-rpath,/opt/libcxx11-dbg/lib -L/opt/libcxx11-dbg/lib -lc++abi" \
         /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-msan Debug -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_SYMENGINE_RCP=ON -DINTEGER_CLASS=boostmp \
         -DBOOST_ROOT=/opt/boost_1_74_p
+
+RUN \
+        python3 -m pip install --use-feature=2020-resolver "pygments>=2.4.1" && \
+        /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver "pygments>=2.4.1"
