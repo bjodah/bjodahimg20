@@ -55,3 +55,26 @@ RUN \
     find /opt/bjodah-dotfiles -type d | xargs chmod 777 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
 
+RUN \
+    export CC=clang-11 CXX=clang++-11 && \
+    export LLVM_ORG_VER=11.0.0 && \
+    export LLVM_MAJOR=$(echo $LLVM_ORG_VER | cut -f1 -d.) && \
+    curl -Ls https://github.com/llvm/llvm-project/archive/llvmorg-${LLVM_ORG_VER}.tar.gz | tar xz -C /tmp && \
+    mkdir /tmp/build_libcxx && \
+    cd /tmp/build_libcxx && \
+    cmake -DCMAKE_BUILD_TYPE=Debug -DLLVM_CONFIG_PATH=/usr/bin/llvm-config-$LLVM_MAJOR -DCMAKE_INSTALL_PREFIX=/opt/libcxx${LLVM_MAJOR}-dbg /tmp/llvm-project-llvmorg-${LLVM_ORG_VER}/libcxx && \
+    cmake --build . && \
+    cmake --build . --target install && \
+    mkdir /tmp/build_libcxxabi &&  \
+    cd /tmp/build_libcxxabi &&  \
+    cmake -DCMAKE_BUILD_TYPE=Debug -DLLVM_CONFIG_PATH=/usr/bin/llvm-config-${LLVM_MAJOR} -DCMAKE_INSTALL_PREFIX=/opt/libcxx${LLVM_MAJOR}-dbg -DLIBCXXABI_LIBCXX_INCLUDES=/opt/libcxx${LLVM_MAJOR}-dbg/include/c++/v1 -DLIBCXXABI_LIBCXX_PATH=/tmp/llvm-project-llvmorg-${LLVM_ORG_VER}/libcxx  /tmp/llvm-project-llvmorg-${LLVM_ORG_VER}/libcxxabi &&  \
+    cmake --build .  && \
+    cmake --build . --target install && \
+    cp /tmp/llvm-project-llvmorg-${LLVM_ORG_VER}/libcxxabi/include/* /opt/libcxx${LLVM_MAJOR}-dbg/include/ && \
+    rm -r /tmp/build_* /tmp/llvm-project*
+
+RUN CC=clang-11 CXX=clang++-11 \
+    CXXFLAGS="-std=c++17 $CXXFLAGS -stdlib=libc++ -I/opt/libcxx11-dbg/include -I/opt/libcxx11-dbg/include/c++/v1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -Og -glldb -DHAVE_GCC_ABI_DEMANGLE=no" \
+    LDFLAGS="$LDFLAGS -Wl,-rpath,/opt/libcxx11-dbg/lib -L/opt/libcxx11-dbg/lib -lc++abi" \
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-msan Debug -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_SYMENGINE_RCP=ON -DINTEGER_CLASS=boostmp \
+        -DBOOST_ROOT=/opt/boost_1_74_p
