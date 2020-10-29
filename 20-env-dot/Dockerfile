@@ -82,3 +82,21 @@ RUN CC=clang-11 CXX=clang++-11 \
 RUN \
         python3 -m pip install --use-feature=2020-resolver "pygments>=2.4.1" && \
         /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver "pygments>=2.4.1"
+
+RUN \
+    mkdir /src && \
+    curl -Ls https://github.com/LLNL/sundials/releases/download/v5.4.0/sundials-5.4.0.tar.gz | tar xz -C /src && \
+    cd /src/sundials-5.4.0 && \
+    CC=gcc-10 cmake -S . -B /tmp/build-sund-5.4.0-dbg \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.4.0-noklu-nolapack-dbg" \
+        -DCMAKE_BUILD_TYPE:STRING="Debug" \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DBUILD_STATIC_LIBS:BOOL=OFF \
+        -DEXAMPLES_ENABLE_C:BOOL=OFF \
+        -DEXAMPLES_INSTALL:BOOL=OFF \
+        -DOPENMP_ENABLE:BOOL=OFF \
+        -DLAPACK_ENABLE=OFF \
+        -DKLU_ENABLE=OFF \
+        -DSUNDIALS_INDEX_SIZE=32 && \
+    cmake --build /tmp/build-sund-5.4.0-dbg --target install -- -j 4
