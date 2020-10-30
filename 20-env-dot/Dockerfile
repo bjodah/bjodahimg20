@@ -73,15 +73,15 @@ RUN \
     cp /tmp/llvm-project-llvmorg-${LLVM_ORG_VER}/libcxxabi/include/* /opt/libcxx${LLVM_MAJOR}-dbg/include/ && \
     rm -r /tmp/build_* /tmp/llvm-project*
 
+RUN \
+    python3 -m pip install --use-feature=2020-resolver "pygments>=2.4.1" tqdm && \
+    /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver "pygments>=2.4.1" tqdm
+
 RUN CC=clang-11 CXX=clang++-11 \
+    CMAKE_PREFIX_PATH="/opt/boost_1_74_p:$CMAKE_PREFIX_PATH" \
     CXXFLAGS="-std=c++17 $CXXFLAGS -stdlib=libc++ -I/opt/libcxx11-dbg/include -I/opt/libcxx11-dbg/include/c++/v1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -Og -glldb -DHAVE_GCC_ABI_DEMANGLE=no" \
     LDFLAGS="$LDFLAGS -Wl,-rpath,/opt/libcxx11-dbg/lib -L/opt/libcxx11-dbg/lib -lc++abi" \
-        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-msan Debug -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_SYMENGINE_RCP=ON -DINTEGER_CLASS=boostmp \
-        -DBOOST_ROOT=/opt/boost_1_74_p
-
-RUN \
-        python3 -m pip install --use-feature=2020-resolver "pygments>=2.4.1" && \
-        /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver "pygments>=2.4.1"
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-libcxx Debug -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_SYMENGINE_RCP=ON -DINTEGER_CLASS=boostmp
 
 RUN \
     mkdir /src && \
