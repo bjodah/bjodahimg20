@@ -100,3 +100,87 @@ RUN \
         -DKLU_ENABLE=OFF \
         -DSUNDIALS_INDEX_SIZE=32 && \
     cmake --build /tmp/build-sund-5.4.0-dbg --target install -- -j 4
+
+
+RUN \
+        curl -Ls https://github.com/LLNL/sundials/releases/download/v5.5.0/sundials-5.5.0.tar.gz | tar xz -C /src && \
+        cd /src/sundials-5.5.0 && \
+        CC=gcc-10 cmake \
+        -S . \
+        -B /tmp/build-sund-5.5.0-dbg \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-noklu-nolapack-dbg" \
+        -DCMAKE_BUILD_TYPE:STRING="Debug" \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DBUILD_STATIC_LIBS:BOOL=OFF \
+        -DEXAMPLES_ENABLE_C:BOOL=OFF \
+        -DEXAMPLES_INSTALL:BOOL=OFF \
+        -DOPENMP_ENABLE:BOOL=OFF \
+        -DLAPACK_ENABLE=OFF \
+        -DKLU_ENABLE=OFF \
+        -DSUNDIALS_INDEX_SIZE=32 && \
+        cmake --build /tmp/build-sund-5.5.0-dbg --target install -- -j 4 && \
+        CC=gcc-10 cmake \
+        -S . \
+        -B /tmp/build-sund-5.5.0-klu-lapack \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-klu-lapack" \
+        -DCMAKE_BUILD_TYPE:STRING="Release" \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DBUILD_STATIC_LIBS:BOOL=OFF \
+        -DEXAMPLES_ENABLE_C:BOOL=OFF \
+        -DEXAMPLES_INSTALL:BOOL=OFF \
+        -DOPENMP_ENABLE:BOOL=OFF \
+        -DLAPACK_ENABLE=ON \
+        -DKLU_ENABLE=ON \
+        -DKLU_INCLUDE_DIR=/usr/include/suitesparse \
+        -DKLU_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu \
+        -DSUNDIALS_INDEX_SIZE=32 && \
+        cmake --build /tmp/build-sund-5.5.0-klu-lapack --target install -- -j 4 && \
+        CC=gcc-10 cmake \
+        -S . \
+        -B /tmp/build-sund-5.5.0-noklu-nolapack-extended-int64 \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-noklu-nolapack-extended-int64" \
+        -DCMAKE_BUILD_TYPE:STRING="Release" \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DBUILD_STATIC_LIBS:BOOL=OFF \
+        -DEXAMPLES_ENABLE_C:BOOL=OFF \
+        -DEXAMPLES_INSTALL:BOOL=OFF \
+        -DOPENMP_ENABLE:BOOL=OFF \
+        -DLAPACK_ENABLE=OFF \
+        -DKLU_ENABLE=OFF \
+        -DSUNDIALS_PRECISION:STRING="extended" \
+        -DSUNDIALS_INDEX_SIZE=64 && \
+        cmake --build /tmp/build-sund-5.5.0-noklu-nolapack-extended-int64 --target install -- -j 4 && \
+        CC=gcc-10 cmake \
+        -S . \
+        -B /tmp/build-sund-5.5.0-noklu-nolapack-single-int32 \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-noklu-nolapack-single-int32" \
+        -DCMAKE_BUILD_TYPE:STRING="Release" \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DBUILD_STATIC_LIBS:BOOL=OFF \
+        -DEXAMPLES_ENABLE_C:BOOL=OFF \
+        -DEXAMPLES_INSTALL:BOOL=OFF \
+        -DOPENMP_ENABLE:BOOL=OFF \
+        -DLAPACK_ENABLE=OFF \
+        -DKLU_ENABLE=OFF \
+        -DSUNDIALS_PRECISION:STRING="single" \
+        -DSUNDIALS_INDEX_SIZE=32 && \
+        cmake --build /tmp/build-sund-5.5.0-noklu-nolapack-single-int32 --target install -- -j 4 && \
+        CC=clang-11 CFLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1" cmake \
+        -S . \
+        -B /tmp/build-sund-5.5.0-dbg \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-msan" \
+        -DCMAKE_BUILD_TYPE:STRING="Debug" \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DBUILD_STATIC_LIBS:BOOL=OFF \
+        -DEXAMPLES_ENABLE_C:BOOL=OFF \
+        -DEXAMPLES_INSTALL:BOOL=OFF \
+        -DOPENMP_ENABLE:BOOL=OFF \
+        -DLAPACK_ENABLE=OFF \
+        -DKLU_ENABLE=OFF \
+        -DSUNDIALS_INDEX_SIZE=32 && \
+        cmake --build /tmp/build-sund-5.5.0-dbg --target install -- -j 4

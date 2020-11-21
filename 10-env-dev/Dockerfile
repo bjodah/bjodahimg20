@@ -1,9 +1,9 @@
 FROM bjodah/bjodahimg20:2.1
 MAINTAINER Björn Dahlgren <bjodah@DELETEMEgmail.com>
 
-ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:$PATH
+ENV RUSTUP_HOME=/opt/rustup \
+    CARGO_HOME=/opt/cargo \
+    PATH=/opt/cargo/bin:$PATH
 
 RUN set -eux; \
     curl -LOs https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init; \
