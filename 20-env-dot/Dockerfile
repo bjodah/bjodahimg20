@@ -1,4 +1,4 @@
-FROM bjodah/bjodahimg20dev:2.1.0
+FROM bjodah/bjodahimg20dev:2.1.1
 
 ENV PATH=/usr/local/cargo/bin:$PATH CARGO_HOME=/usr/local/cargo RUSTUP_HOME=/usr/local/rustup
 
