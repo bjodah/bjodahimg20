@@ -119,7 +119,7 @@ RUN \
     /opt/cpython-3.9-dbg/bin/python3 -c "import sqlite3, uuid, lzma, bz2" && \
     /opt/cpython-3.9-dbg/bin/python3 -m pip install --upgrade --upgrade-strategy=eager pip && \
     /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver cython pytest && \
-    /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver numpy scipy matplotlib plotly tqdm ipywidgets notebook ipympl wheel appdirs && \
+    /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver numpy scipy matplotlib plotly tqdm ipywidgets notebook ipympl wheel appdirs scikit-optimize ptvsd && \
     cd /tmp; rm -rf /tmp/* /var/tmp/* ~/.cache/pip
 
 RUN \
