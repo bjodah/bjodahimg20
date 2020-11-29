@@ -1,6 +1,14 @@
 FROM bjodah/bjodahimg20:2.1
 MAINTAINER Björn Dahlgren <bjodah@DELETEMEgmail.com>
 
+RUN \
+    apt-get update -q && apt-get -y dist-upgrade
+
+RUN \
+    curl -Ls https://github.com/emscripten-core/emsdk/archive/2.0.9.tar.gz | tar xz -C /opt && \
+    cd /opt/emsdk-2.0.9 && ./emsdk install 2.0.9 && \
+    ./emsdk activate 2.0.9 && ls -l /opt/emsdk-2.0.9/emsdk_env.sh
+
 ENV RUSTUP_HOME=/opt/rustup \
     CARGO_HOME=/opt/cargo \
     PATH=/opt/cargo/bin:$PATH
@@ -15,17 +23,6 @@ RUN set -eux; \
     cargo --version; \
     rustc --version; \
     rustup component add rustfmt
-
-RUN \
-    cd /tmp && \
-        git clone --depth 1 --branch emacs-27 git://github.com/emacs-mirror/emacs && cd emacs && ./autogen.sh && \
-        CC=gcc-10 CXX=g++-10 ./configure --with-imagemagick --with-modules  --prefix=/usr/local && \
-        make && make install && cd /tmp && rm -r emacs
-
-RUN \
-    curl -Ls https://github.com/emscripten-core/emsdk/archive/2.0.8.tar.gz | tar xz -C /opt && \
-    cd /opt/emsdk-2.0.8 && ./emsdk install 2.0.8 && \
-    ./emsdk activate 2.0.8 && ls -l /opt/emsdk-2.0.8/emsdk_env.sh
 
 RUN \
     export CC=clang-11 CXX=clang++-11 && \
@@ -51,23 +48,6 @@ COPY scripts/get_sundials.sh /opt/
 RUN \
     CC=clang-11 CFLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1" /opt/get_sundials.sh 5.4.0 /opt/sundials-5.4.0-msan -DLAPACK_ENABLE=OFF -DKLU_ENABLE=OFF -DSUNDIALS_INDEX_SIZE=32 && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-COPY scripts/get_symengine.sh /opt/
-RUN \
-    CC=clang-11 CXX=clang++-11 CXXFLAGS="-std=c++14" \
-        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-rel Release -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=ON && \
-    CC=clang-11 CXX=clang++-11 CXXFLAGS="-std=c++14" \
-        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-tcm Release -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=ON -DWITH_TCMALLOC=ON && \
-    export CMAKE_PREFIX_PATH=/usr/lib/llvm-11 && \
-    export CPLUS_INCLUDE_PATH=/opt/boost_1_74_p/include && cd /tmp && \
-    CC=gcc-10   CXX=g++-10 CXXFLAGS="-std=c++14 -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -fsized-deallocation" \
-        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-dbg Debug   -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=OFF -DINTEGER_CLASS=boostmp
-
-RUN CC=clang-11 CXX=clang++-11 \
-    CXXFLAGS="-std=c++14 $CXXFLAGS -fsanitize=memory -fsanitize-memory-track-origins=2 -stdlib=libc++ -I/opt/libcxx11_msan/include -I/opt/libcxx11_msan/include/c++/v1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 -glldb -DHAVE_GCC_ABI_DEMANGLE=no" \
-    LDFLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 $LDFLAGS -Wl,-rpath,/opt/libcxx11_msan/lib -L/opt/libcxx11_msan/lib -lc++abi" \
-        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-msan Debug -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_SYMENGINE_RCP=ON -DINTEGER_CLASS=boostmp \
-        -DBOOST_ROOT=/opt/boost_1_74_p
 
 RUN \
     curl -Ls "https://vorboss.dl.sourceforge.net/project/swig/swig/swig-4.0.1/swig-4.0.1.tar.gz" | tar xz && cd swig-* && CXX=g++-10 CC=gcc-10 ./configure && make && make install
@@ -98,6 +78,25 @@ RUN \
         make && make install && \
     cd /tmp && rm -r ttyd
 
+RUN \
+    apt-key adv --fetch-keys https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public && \
+    echo "deb https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ focal main" >>/etc/apt/sources.list && \
+    apt-get update && \
+    apt-get -y install --no-install-recommends adoptopenjdk-11-openj9 && \
+    java --version && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ENV JAVA_HOME=/usr/lib/jvm/adoptopenjdk-11-openj9-amd64
+
+RUN \
+    npm i -g typescript-language-server && \
+    npm i -g typescript
+
+RUN \
+    cd /tmp && \
+        git clone --depth 1 --branch emacs-27 git://github.com/emacs-mirror/emacs && cd emacs && ./autogen.sh && \
+        CC=gcc-10 CXX=g++-10 ./configure --with-imagemagick --with-modules --with-json --prefix=/usr/local && \
+        make && make install && cd /tmp && rm -r emacs
 
 RUN \
     mkdir -p /tmp/cpy39/build && cd /tmp/cpy39 && \
@@ -122,19 +121,23 @@ RUN \
     /opt/cpython-3.9-dbg/bin/python3 -m pip install --use-feature=2020-resolver numpy scipy matplotlib plotly tqdm ipywidgets notebook ipympl wheel appdirs scikit-optimize ptvsd && \
     cd /tmp; rm -rf /tmp/* /var/tmp/* ~/.cache/pip
 
+COPY scripts/get_symengine.sh /opt/
 RUN \
-    apt-key adv --fetch-keys https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public && \
-    echo "deb https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ focal main" >>/etc/apt/sources.list && \
-    apt-get update && \
-    apt-get -y install --no-install-recommends adoptopenjdk-11-openj9 && \
-    java --version && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    CC=clang-11 CXX=clang++-11 CXXFLAGS="-std=c++14" \
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-rel Release -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=ON && \
+    CC=clang-11 CXX=clang++-11 CXXFLAGS="-std=c++14" \
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-tcm Release -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=ON -DWITH_TCMALLOC=ON && \
+    export CMAKE_PREFIX_PATH=/usr/lib/llvm-11 && \
+    export CPLUS_INCLUDE_PATH=/opt/boost_1_74_p/include && cd /tmp && \
+    CC=gcc-10   CXX=g++-10 CXXFLAGS="-std=c++14 -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -fsized-deallocation" \
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-dbg Debug   -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_LLVM=OFF -DINTEGER_CLASS=boostmp
 
-ENV JAVA_HOME=/usr/lib/jvm/adoptopenjdk-11-openj9-amd64
+RUN CC=clang-11 CXX=clang++-11 \
+    CXXFLAGS="-std=c++14 $CXXFLAGS -fsanitize=memory -fsanitize-memory-track-origins=2 -stdlib=libc++ -I/opt/libcxx11_msan/include -I/opt/libcxx11_msan/include/c++/v1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1 -glldb -DHAVE_GCC_ABI_DEMANGLE=no" \
+    LDFLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 $LDFLAGS -Wl,-rpath,/opt/libcxx11_msan/lib -L/opt/libcxx11_msan/lib -lc++abi" \
+        /opt/get_symengine.sh 46090cfd20b92e73b6ddd8c203e3173b106adabb /opt/symengine-46090cf-msan Debug -DWITH_CPP14=ON -DWITH_COTIRE=OFF -DWITH_BFD=OFF -DWITH_SYMENGINE_RCP=ON -DINTEGER_CLASS=boostmp \
+        -DBOOST_ROOT=/opt/boost_1_74_p
 
-RUN \
-    npm i -g typescript-language-server && \
-    npm i -g typescript
 
 # RUN \
 #     mkdir -p /tmp/cpy310/build && cd /tmp/cpy310 && \
