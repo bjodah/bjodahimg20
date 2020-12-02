@@ -205,15 +205,8 @@ RUN CC=clang-11 CXX=clang++-11 \
 
 
 # RUN \
-#     PATH=/opt/julia-1.4.0/bin:$PATH python3 -m pip install diffeqpy numba && \
-#     PATH=/opt/julia-1.4.0/bin:$PATH python3 -c 'import diffeqpy; diffeqpy.install()' && \
-#     PATH=/opt/julia-1.4.0/bin:$PATH python3 -m pytest --pyargs diffeqpy && \
-#     rm -rf /tmp/* /var/tmp/* ~/.cache/pip
-
-
-# RUN \
-#     curl -Ls "https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.0-linux-x86_64.tar.gz" | tar xz -C /opt && \
-#     PATH=/opt/julia-1.5.0/bin:$PATH julia -e 'using Pkg; \
+#     curl -Ls "https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz" | tar xz -C /opt && \
+#     PATH=/opt/julia-1.5.3/bin:$PATH julia -e 'using Pkg; \
 #       Pkg.add("DifferentialEquations"); using DifferentialEquations; \
 #       pkg"add https://github.com/JuliaDiffEq/DiffEqTutorials.jl"; using DiffEqTutorials; \
 #       Pkg.add("IJulia"); using IJulia; \
@@ -222,7 +215,7 @@ RUN CC=clang-11 CXX=clang++-11 \
 #       Pkg.add("DiffEqBiological"); using DiffEqBiological; \
 #       Pkg.add("ODEInterfaceDiffEq"); using ODEInterfaceDiffEq;' && \
 #     cd /opt && git clone https://github.com/JuliaDiffEq/DiffEqTutorials.jl && \
-#     PATH=/opt/julia-1.5.0/bin:$PATH julia -e 'using Pkg, DiffEqTutorials; \
+#     PATH=/opt/julia-1.5.3/bin:$PATH julia -e 'using Pkg, DiffEqTutorials; \
 #       cd(joinpath(dirname(pathof(DiffEqTutorials)), "..")); \
 #       Pkg.pkg"activate ."; \
 #       Pkg.pkg"instantiate"; \
@@ -233,7 +226,7 @@ RUN CC=clang-11 CXX=clang++-11 \
 #       '
 
 # ~/.julia/conda/3/bin/pip install jupyter_contrib_nbextensions && \
-# PATH=/opt/julia-1.5.0/bin:$PATH julia -e 'using Pkg; \
+# PATH=/opt/julia-1.5.3/bin:$PATH julia -e 'using Pkg; \
 #   Pkg.add("WebIO"); using WebIO; \
 #   Pkg.add("ORCA"); using ORCA; \
 #   Pkg.add("PloylyJS"); using PlotlyJS; \

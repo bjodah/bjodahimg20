@@ -191,3 +191,9 @@ RUN \
         cmake --build /build/sund-5.5.0-msan --target install -- -j 4 && \
         cp /build/sund-5.5.0-msan/compile_commands.json /opt/sundials-5.5.0-msan && \
         rm -r /build/sund-*
+
+RUN \
+        curl -Ls https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh >/tmp/miniconda3.sh && \
+        bash /tmp/miniconda3.sh -b -p /opt/miniconda3 && rm /tmp/miniconda3.sh && \
+        /opt/miniconda3/bin/conda create -n cling && \
+        bash -c "source /opt/miniconda3/bin/activate cling && /opt/miniconda3/bin/conda install xeus-cling -c conda-forge"
