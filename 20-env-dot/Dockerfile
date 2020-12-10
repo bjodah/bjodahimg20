@@ -197,3 +197,12 @@ RUN \
         bash /tmp/miniconda3.sh -b -p /opt/miniconda3 && rm /tmp/miniconda3.sh && \
         /opt/miniconda3/bin/conda create -n cling && \
         bash -c "source /opt/miniconda3/bin/activate cling && /opt/miniconda3/bin/conda install xeus-cling -c conda-forge"
+
+RUN \
+        wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB && \
+        apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB && \
+        rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB && \
+        echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list && \
+        apt-get update && \
+        apt-get -y install intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic intel-oneapi-compiler-fortran && \
+        apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
