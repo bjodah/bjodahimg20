@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20201008
+FROM ubuntu:focal-20201106
 MAINTAINER Björn Dahlgren <bjodah@DELETEMEgmail.com>
 ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true
 
@@ -18,7 +18,7 @@ RUN apt-get update && \
     libc-dev dpkg-dev make gfortran-10 gcc-10 g++-10 gcc-10-multilib g++-10-multilib libc6-dev-i386 mingw-w64 \
     wkhtmltopdf python2-dev \
     python3-dev python3-pip python3-setuptools python3-wheel \
-    gdb valgrind scons libtool libtool-bin automake cmake flex bison binutils-dev libgoogle-perftools-dev lcov tree ninja-build cppcheck \
+    gdb valgrind scons libtool libtool-bin automake ccache cmake flex bison binutils-dev libgoogle-perftools-dev lcov tree ninja-build cppcheck \
     libreadline6-dev libyaml-dev libicu-dev zlib1g-dev libbz2-dev liblzma-dev lzma lzma-dev zstd libzstd-dev libncurses5-dev \
     libsqlite3-dev libzmq3-dev libssl-dev libgdbm-dev tk-dev libxslt1-dev libxml2-dev libjansson4 libjansson-dev libgit2-dev \
     liblapack-dev libopenmpi-dev libgmp-dev libmpfr-dev libgsl-dev coinor-libipopt-dev \
@@ -45,7 +45,7 @@ RUN \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/pip
 
 RUN python3 -m pip install setuptools wheel virtualenv future appdirs pybind11 cython pycparser pycparser-fake-libc \
-            flake8 pudb pytest pytest-pep8 pytest-cov pytest-flakes pytest-flake8 pytest-xdist pytest-docstyle pytest-pudb mypy black isort \
+            flake8 pudb pytest pytest-black pytest-pep8 pytest-cov pytest-flakes pytest-flake8 pytest-xdist pytest-docstyle pytest-pudb mypy black isort \
             numpy numpydoc scipy statsmodels sympy pandas matplotlib mpld3 jupyter ipython ipykernel \
             scikit-optimize joblib toolz param quantities pylatex bokeh mogli xarray periodictable ase numericalunits \
             tqdm pyparsing ipywidgets pulp holoviews[recommended] cclib scikit-image git-archive-all wurlitzer \
