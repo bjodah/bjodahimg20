@@ -213,3 +213,7 @@ RUN \
         apt-get update && \
         apt-get -y install intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic intel-oneapi-compiler-fortran && \
         apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN \
+        curl -Ls https://github.com/ispc/ispc/releases/download/v1.15.0/ispc-v1.15.0-linux.tar.gz | tar xz -C /opt && \
+        /opt/ispc-v1.15.0-linux/bin/ispc --version
