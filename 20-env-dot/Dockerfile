@@ -110,14 +110,14 @@ RUN \
 
 
 RUN \
-        curl -Ls https://github.com/LLNL/sundials/releases/download/v5.5.0/sundials-5.5.0.tar.gz | tar xz -C /src && \
-        cd /src/sundials-5.5.0 && \
+        curl -Ls https://github.com/LLNL/sundials/releases/download/v5.6.1/sundials-5.6.1.tar.gz | tar xz -C /src && \
+        cd /src/sundials-5.6.1 && \
         mkdir -p /build && \
         CC=gcc-10 cmake \
         -S . \
-        -B /build/sund-5.5.0-dbg \
+        -B /build/sund-5.6.1-dbg \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-noklu-nolapack-dbg" \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.6.1-noklu-nolapack-dbg" \
         -DCMAKE_BUILD_TYPE:STRING="Debug" \
         -DBUILD_SHARED_LIBS:BOOL=ON \
         -DBUILD_STATIC_LIBS:BOOL=OFF \
@@ -127,13 +127,13 @@ RUN \
         -DLAPACK_ENABLE=OFF \
         -DKLU_ENABLE=OFF \
         -DSUNDIALS_INDEX_SIZE=32 && \
-        cmake --build /build/sund-5.5.0-dbg --target install -- -j 4 && \
-        cp /build/sund-5.5.0-dbg/compile_commands.json /opt/sundials-5.5.0-dbg && \
+        cmake --build /build/sund-5.6.1-dbg --target install -- -j 4 && \
+        cp /build/sund-5.6.1-dbg/compile_commands.json /opt/sundials-5.6.1-dbg && \
         CC=gcc-10 cmake \
         -S . \
-        -B /build/sund-5.5.0-klu-lapack \
+        -B /build/sund-5.6.1-klu-lapack \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-klu-lapack" \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.6.1-klu-lapack" \
         -DCMAKE_BUILD_TYPE:STRING="Release" \
         -DBUILD_SHARED_LIBS:BOOL=ON \
         -DBUILD_STATIC_LIBS:BOOL=OFF \
@@ -145,13 +145,13 @@ RUN \
         -DKLU_INCLUDE_DIR=/usr/include/suitesparse \
         -DKLU_LIBRARY_DIR=/usr/lib/x86_64-linux-gnu \
         -DSUNDIALS_INDEX_SIZE=32 && \
-        cmake --build /build/sund-5.5.0-klu-lapack --target install -- -j 4 && \
-        cp /build/sund-5.5.0-klu-lapack/compile_commands.json /opt/sundials-5.5.0-klu-lapack && \
+        cmake --build /build/sund-5.6.1-klu-lapack --target install -- -j 4 && \
+        cp /build/sund-5.6.1-klu-lapack/compile_commands.json /opt/sundials-5.6.1-klu-lapack && \
         CC=gcc-10 cmake \
         -S . \
-        -B /build/sund-5.5.0-noklu-nolapack-extended-int64 \
+        -B /build/sund-5.6.1-noklu-nolapack-extended-int64 \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-noklu-nolapack-extended-int64" \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.6.1-noklu-nolapack-extended-int64" \
         -DCMAKE_BUILD_TYPE:STRING="Release" \
         -DBUILD_SHARED_LIBS:BOOL=ON \
         -DBUILD_STATIC_LIBS:BOOL=OFF \
@@ -162,13 +162,13 @@ RUN \
         -DKLU_ENABLE=OFF \
         -DSUNDIALS_PRECISION:STRING="extended" \
         -DSUNDIALS_INDEX_SIZE=64 && \
-        cmake --build /build/sund-5.5.0-noklu-nolapack-extended-int64 --target install -- -j 4 && \
-        cp /build/sund-5.5.0-noklu-nolapack-extended-int64/compile_commands.json /opt/sundials-5.5.0-noklu-nolapack-extended-int64 && \
+        cmake --build /build/sund-5.6.1-noklu-nolapack-extended-int64 --target install -- -j 4 && \
+        cp /build/sund-5.6.1-noklu-nolapack-extended-int64/compile_commands.json /opt/sundials-5.6.1-noklu-nolapack-extended-int64 && \
         CC=gcc-10 cmake \
         -S . \
-        -B /build/sund-5.5.0-noklu-nolapack-single-int32 \
+        -B /build/sund-5.6.1-noklu-nolapack-single-int32 \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-noklu-nolapack-single-int32" \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.6.1-noklu-nolapack-single-int32" \
         -DCMAKE_BUILD_TYPE:STRING="Release" \
         -DBUILD_SHARED_LIBS:BOOL=ON \
         -DBUILD_STATIC_LIBS:BOOL=OFF \
@@ -179,13 +179,13 @@ RUN \
         -DKLU_ENABLE=OFF \
         -DSUNDIALS_PRECISION:STRING="single" \
         -DSUNDIALS_INDEX_SIZE=32 && \
-        cmake --build /build/sund-5.5.0-noklu-nolapack-single-int32 --target install -- -j 4 && \
-        cp /build/sund-5.5.0-noklu-nolapack-single-int32/compile_commands.json /opt/sundials-5.5.0-noklu-nolapack-single-int32 && \
+        cmake --build /build/sund-5.6.1-noklu-nolapack-single-int32 --target install -- -j 4 && \
+        cp /build/sund-5.6.1-noklu-nolapack-single-int32/compile_commands.json /opt/sundials-5.6.1-noklu-nolapack-single-int32 && \
         CC=clang-11 CFLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fno-optimize-sibling-calls -O1" cmake \
         -S . \
-        -B /build/sund-5.5.0-msan \
+        -B /build/sund-5.6.1-msan \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
-        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.5.0-msan" \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/sundials-5.6.1-msan" \
         -DCMAKE_BUILD_TYPE:STRING="Debug" \
         -DBUILD_SHARED_LIBS:BOOL=ON \
         -DBUILD_STATIC_LIBS:BOOL=OFF \
@@ -195,15 +195,9 @@ RUN \
         -DLAPACK_ENABLE=OFF \
         -DKLU_ENABLE=OFF \
         -DSUNDIALS_INDEX_SIZE=32 && \
-        cmake --build /build/sund-5.5.0-msan --target install -- -j 4 && \
-        cp /build/sund-5.5.0-msan/compile_commands.json /opt/sundials-5.5.0-msan && \
+        cmake --build /build/sund-5.6.1-msan --target install -- -j 4 && \
+        cp /build/sund-5.6.1-msan/compile_commands.json /opt/sundials-5.6.1-msan && \
         rm -r /build/sund-*
-
-RUN \
-        curl -Ls https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh >/tmp/miniconda3.sh && \
-        bash /tmp/miniconda3.sh -b -p /opt/miniconda3 && rm /tmp/miniconda3.sh && \
-        /opt/miniconda3/bin/conda create -n cling && \
-        bash -c "source /opt/miniconda3/bin/activate cling && /opt/miniconda3/bin/conda install xeus-cling -c conda-forge"
 
 RUN \
         wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB && \
@@ -217,3 +211,9 @@ RUN \
 RUN \
         curl -Ls https://github.com/ispc/ispc/releases/download/v1.15.0/ispc-v1.15.0-linux.tar.gz | tar xz -C /opt && \
         /opt/ispc-v1.15.0-linux/bin/ispc --version
+
+# RUN \
+#         curl -Ls https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh >/tmp/miniconda3.sh && \
+#         bash /tmp/miniconda3.sh -b -p /opt/miniconda3 && rm /tmp/miniconda3.sh && \
+#         /opt/miniconda3/bin/conda create -n cling && \
+#         bash -c "source /opt/miniconda3/bin/activate cling && /opt/miniconda3/bin/conda install xeus-cling -c conda-forge"
