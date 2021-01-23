@@ -64,7 +64,7 @@ RUN \
 
 RUN \
     export CC=clang-11 CXX=clang++-11 && \
-    export LLVM_ORG_VER=11.0.0 && \
+    export LLVM_ORG_VER=11.0.1 && \
     export LLVM_MAJOR=$(echo $LLVM_ORG_VER | cut -f1 -d.) && \
     curl -Ls https://github.com/llvm/llvm-project/archive/llvmorg-${LLVM_ORG_VER}.tar.gz | tar xz -C /tmp && \
     mkdir /tmp/build_libcxx && \
@@ -197,7 +197,7 @@ RUN \
         -DSUNDIALS_INDEX_SIZE=32 && \
         cmake --build /build/sund-5.6.1-msan --target install -- -j 4 && \
         cp /build/sund-5.6.1-msan/compile_commands.json /opt/sundials-5.6.1-msan && \
-        rm -r /build/sund-*
+        for d in /build/sund-*/; do find $d -not -name '*config.h' -exec rm {} \;; done
 
 RUN \
         wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB && \
